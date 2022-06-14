@@ -10,7 +10,7 @@ const userRoutes = require('./routes/user');
 //winsky_test:OoxPYDQw0VFoLUGR
 
 /**Connection à mongodb */
-mongoose.connect('mongodb+srv://winsky:nbMQAmduUEB1UagZ@cluster0.1ohtm.mongodb.net/?retryWrites=true&w=majority', {
+mongoose.connect('mongodb+srv://winsky_test:OoxPYDQw0VFoLUGR@cluster0.1ohtm.mongodb.net/?retryWrites=true&w=majority', {
         useNewUrlParser: true,
         useUnifiedTopology: true
     })
@@ -32,7 +32,7 @@ app.use(bodyParser.json());
 
 app.use('/images', express.static(path.join(__dirname, 'images')));
 
-app.use('/api/stuff', stuffRoutes);
+app.use('/api/sauces', stuffRoutes);
 app.use('/api/auth', userRoutes);
 
 module.exports = app;
