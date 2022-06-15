@@ -1,16 +1,21 @@
 const express = require('express');
 const mongoose = require('mongoose');
 
+require('dotenv').config();
+
 const path = require('path');
 const bodyParser = require('body-parser');
-
+/**Inclusion des routes */
 const stuffRoutes = require('./routes/stuff');
 const userRoutes = require('./routes/user');
 
 //winsky_test:OoxPYDQw0VFoLUGR
 
+const userId = process.env.USER_ID;
+const mongodbPassword = process.env.PASSWORD
+
 /**Connection à mongodb */
-mongoose.connect('mongodb+srv://winsky_test:OoxPYDQw0VFoLUGR@cluster0.1ohtm.mongodb.net/?retryWrites=true&w=majority', {
+mongoose.connect(`mongodb+srv://${userId}:${mongodbPassword}@cluster0.1ohtm.mongodb.net/?retryWrites=true&w=majority`, {
         useNewUrlParser: true,
         useUnifiedTopology: true
     })
