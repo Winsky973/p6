@@ -10,11 +10,12 @@ const bodyParser = require('body-parser');
 const stuffRoutes = require('./routes/stuff');
 const userRoutes = require('./routes/user');
 
-const userId = process.env.USER_ID;
+const userId = process.env.USER;
 const mongodbPassword = process.env.PASSWORD;
+const host = process.env.HOST
 
 /**Connection à mongodb */
-mongoose.connect(`mongodb+srv://${userId}:${mongodbPassword}@cluster0.1ohtm.mongodb.net/?retryWrites=true&w=majority`, {
+mongoose.connect(`mongodb+srv://${userId}:${mongodbPassword}@${host}/?retryWrites=true&w=majority`, {
         useNewUrlParser: true,
         useUnifiedTopology: true
     })
