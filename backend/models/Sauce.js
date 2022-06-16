@@ -10,7 +10,7 @@ const thingSchema = mongoose.Schema({
     imageUrl: { type: String, required: true },
     heat: { type: Number, required: true },
     likes: { type: Number, required: true, default: 0 },
-    dislikes: { type: String, required: true, default: 0 },
+    dislikes: { type: Number, required: true, default: 0 },
     usersLiked: { type: [String], required: true },
     usersDisliked: { type: [String], required: true },
 });

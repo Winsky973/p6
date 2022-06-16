@@ -7,18 +7,11 @@ const path = require('path');
 const bodyParser = require('body-parser');
 
 /**Inclusion des routes */
-const stuffRoutes = require('./routes/stuff');
+const stuffRoutes = require('./routes/sauce');
 const userRoutes = require('./routes/user');
 
-const userId = process.env.USER;
-const mongodbPassword = process.env.PASSWORD;
-const host = process.env.HOST
-
 /**Connection à mongodb */
-mongoose.connect(`mongodb+srv://${userId}:${mongodbPassword}@${host}/?retryWrites=true&w=majority`, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true
-    })
+mongoose.connect(process.env.CONNECTION_URL, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => console.log('Connexion à MongoDB réussie !'))
     .catch(() => console.log('Connexion à MongoDB échouée !'));
 
