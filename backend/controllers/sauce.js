@@ -79,17 +79,37 @@ exports.getAllSauces = (req, res, next) => {
 /**Like a sauce */
 exports.likeSauce = (req, res, next) => {
     const likes = req.body.like;
-    console.log('like : ', likes);
+    const userIdLiked = req.body.userId;
     Sauce.findOne({ _id: req.params.id })
         .then((sauce) => {
+
             if (likes === 1) {
-                sauce.likes += 1;
-                console.log('sauce : ', sauce);
+                /**If liked */
+                sauce.likes += likes;
+                sauce['usersLiked'].push(userIdLiked);
+
+                Sauce.updateOne({ _id: req.params.id }, sauce)
+                    .then(() => res.status(200).json({ message: 'Like enregistré' }))
+                    .catch(error => res.status(400).json({ error }))
+            } else if (likes === -1) {
+                /**If disliked */
+                sauce.likes -= 1;
+                sauce.dislikes += 1;
+                sauce['usersDisliked'].push(userIdLiked);
+
+                Sauce.updateOne({ _id: req.params.id }, sauce)
+                    .then(() => res.status(200).json({ message: 'Like enregistré' }))
+                    .catch(error => res.status(400).json({ error }))
+            } else {
+                /**If none */
+                sauce.likes += 0;
+                sauce.dislikes += 0;
 
                 Sauce.updateOne({ _id: req.params.id }, sauce)
                     .then(() => res.status(200).json({ message: 'Like enregistré' }))
                     .catch(error => res.status(400).json({ error }))
             }
+
         })
         .catch(error => res.status(400).json({ error }));
 }
