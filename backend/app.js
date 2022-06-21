@@ -7,11 +7,11 @@ const path = require('path');
 const bodyParser = require('body-parser');
 
 /**Inclusion des routes */
-const stuffRoutes = require('./routes/sauce');
+const sauceRoutes = require('./routes/sauce');
 const userRoutes = require('./routes/user');
 
 /**Connection à mongodb */
-mongoose.connect(process.env.CONNECTION_URL, { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect(`mongodb+srv://${process.env.DBUSER}:${process.env.DBPASS}@cluster0.1ohtm.mongodb.net/?retryWrites=true&w=majority`, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => console.log('Connexion à MongoDB réussie !'))
     .catch(() => console.log('Connexion à MongoDB échouée !'));
 
@@ -30,7 +30,7 @@ app.use(bodyParser.json());
 
 app.use('/images', express.static(path.join(__dirname, 'images')));
 
-app.use('/api/sauces', stuffRoutes);
+app.use('/api/sauces', sauceRoutes);
 app.use('/api/auth', userRoutes);
 
 module.exports = app;
