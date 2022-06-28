@@ -17,6 +17,7 @@ exports.createSauce = (req, res, next) => {
 
 /**Update one */
 exports.modifySauce = (req, res, next) => {
+
     const sauceObject = req.file ? {
         ...JSON.parse(req.body.sauce),
         imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
@@ -25,12 +26,18 @@ exports.modifySauce = (req, res, next) => {
     /**Before update we take the old url image and delete it than push the new image */
     Sauce.findOne({ _id: req.params.id })
         .then((sauce) => {
-            const filename = sauce.imageUrl.split('/images/')[1];
-            fs.unlink(`images/${filename}`, () => {
-                Sauce.updateOne({ _id: req.params.id }, {...sauceObject, _id: req.params.id })
-                    .then(() => res.status(200).json({ message: 'objet modifié' }))
-                    .catch(error => res.status(400).json({ error }))
-            });
+
+            if (req.file) {
+                const filename = sauce.imageUrl.split('/images/')[1];
+                fs.unlink(`images/${filename}`, function(error) {
+                    if (error) return error;
+                    console.log('image delete');
+                });
+            }
+            Sauce.updateOne({ _id: req.params.id }, {...sauceObject, _id: req.params.id })
+                .then(() => res.status(200).json({ message: 'objet modifié' }))
+                .catch(error => res.status(400).json({ error }));
+
         })
         .catch((error) => { res.status(400).json({ error: error }) });
 };
@@ -81,17 +88,14 @@ exports.likeSauce = (req, res, next) => {
     const likes = req.body.like;
     const userId = req.body.userId;
 
-
     Sauce.findOne({ _id: req.params.id })
         .then((sauce) => {
 
             switch (likes) {
                 case 1:
-                    const foundIdInArray = sauce['usersLiked'].find(element => element === userId);
-
-                    if (!foundIdInArray) {
-                        sauce['usersLiked'].push(userId);
+                    if (!foundIdFromArray(sauce['usersLiked'], userId)) {
                         sauce.likes += likes;
+                        sauce['usersLiked'].push(userId);
                     }
 
                     Sauce.updateOne({ _id: req.params.id }, sauce)
@@ -100,17 +104,27 @@ exports.likeSauce = (req, res, next) => {
                     break;
 
                 case -1:
-                    sauce.dislikes += 1;
-                    sauce['usersDisliked'].push(userId);
-
+                    if (!foundIdFromArray(sauce['usersDisliked'], userId) && !foundIdFromArray(sauce['usersLiked'], userId)) {
+                        sauce.dislikes += 1;
+                        sauce['usersDisliked'].push(userId);
+                    }
                     Sauce.updateOne({ _id: req.params.id }, sauce)
                         .then(() => res.status(200).json({ message: 'Like enregistré' }))
                         .catch(error => res.status(400).json({ error }))
                     break;
 
                 case 0:
-                    //sauce['usersDisliked'].split(userId);
+                    const foundIndexIdUsersLiked = sauce['usersLiked'].findIndex(element => element === userId);
+                    const foundIndexIdUsersDisliked = sauce['usersDisliked'].findIndex(element => element === userId);
 
+                    if (foundIndexIdUsersLiked !== -1) {
+                        sauce['usersLiked'].splice(foundIndexIdUsersLiked);
+                        sauce.likes -= 1;
+                    }
+                    if (foundIndexIdUsersDisliked !== -1) {
+                        sauce['usersDisliked'].splice(foundIndexIdUsersDisliked);
+                        sauce.dislikes -= 1;
+                    }
                     Sauce.updateOne({ _id: req.params.id }, sauce)
                         .then(() => res.status(200).json({ message: 'Like enregistré' }))
                         .catch(error => res.status(400).json({ error }))
@@ -124,36 +138,9 @@ exports.likeSauce = (req, res, next) => {
         .catch(error => res.status(400).json({ error }));
 }
 
-
-function findIdInArray(sauce, name) {
-    const foundIdInArray = sauce[name].find(element => element === userId);
-    return found;
+function foundIdFromArray(array, userId) {
+    const foundIdInArray = array.find(element => element === userId);
+    if (foundIdInArray) {
+        return true;
+    }
 }
-
-/*
-            if (likes === 1) {
-                sauce.likes += likes;
-
-                const found = sauce['usersLiked'].find(element => element === userId)
-                if (!found) {
-                    sauce['usersLiked'].push(userId);
-                }
-
-                Sauce.updateOne({ _id: req.params.id }, sauce)
-                    .then(() => res.status(200).json({ message: 'Like enregistré' }))
-                    .catch(error => res.status(400).json({ error }))
-            } else if (likes === -1) {
-                sauce.likes -= 1;
-                sauce.dislikes += 1;
-                sauce['usersDisliked'].push(userId);
-
-                Sauce.updateOne({ _id: req.params.id }, sauce)
-                    .then(() => res.status(200).json({ message: 'Like enregistré' }))
-                    .catch(error => res.status(400).json({ error }))
-            } else {
-                sauce.likes -= 1;
-
-                Sauce.updateOne({ _id: req.params.id }, sauce)
-                    .then(() => res.status(200).json({ message: 'Like enregistré' }))
-                    .catch(error => res.status(400).json({ error }))
-            }*/
